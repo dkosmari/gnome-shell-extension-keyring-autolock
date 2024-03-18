@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Keyring Autolock\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "keyring-autolock\n"
-"POT-Creation-Date: 2024-03-17 22:56-0300\n"
+"POT-Creation-Date: 2024-03-18 02:51-0300\n"
 "PO-Revision-Date: 2024-03-17 23:03-0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -19,11 +19,11 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.2.2\n"
 
-#: extension.js:54
+#: extension.js:52
 msgid "Settings..."
 msgstr "Impostazioni..."
 
-#: extension.js:58
+#: extension.js:56
 msgid "Lock the keyring now."
 msgstr "Chiudi subito il portachiavi."
 
@@ -42,8 +42,7 @@ msgstr "Intervallo di controllo (secondi)"
 #: prefs.js:49
 msgid "The keyring is checked periodically, to detect if it is unlocked."
 msgstr ""
-"Il portachiavi viene controllato periodicamente, per rilevare se è "
-"sbloccato."
+"Il portachiavi viene controllato periodicamente, per rilevare se è sbloccato."
 
 #: prefs.js:68
 msgid "Lock delay (seconds)"

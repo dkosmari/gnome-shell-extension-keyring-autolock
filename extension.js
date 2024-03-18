@@ -15,8 +15,6 @@ const {
 const ExtensionUtils = imports.misc.extensionUtils;
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
-const PopupMenu = imports.ui.popupMenu;
-
 
 const _ = ExtensionUtils.gettext;
 
@@ -59,7 +57,7 @@ class Indicator extends PanelMenu.Button {
                                               this.#ext.lockTask.bind(this.#ext),
                                               'channel-secure-symbolic');
 
-        Main.panel.addToStatusArea(this.#ext.uuid, this);
+        Main.panel.addToStatusArea(this.#ext.metadata.uuid, this);
     }
 
 
@@ -117,7 +115,7 @@ class Extension {
 
     constructor(meta)
     {
-        this._uuid = meta.uuid;
+        this.metadata = meta;
     }
 
 
