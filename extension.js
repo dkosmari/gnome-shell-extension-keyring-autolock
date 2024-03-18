@@ -4,8 +4,6 @@
  */
 
 
-/* exported init */
-
 const {
     Gio,
     GLib,
@@ -35,41 +33,33 @@ class Indicator extends PanelMenu.Button {
     }
 
 
-    constructor(uuid)
+    #ext;
+    #icon;
+    #lock_item;
+
+
+    constructor(ext)
     {
         super();
 
-        // TODO: have these set by the preferences
-        this._lock_delay = 60;
-        this._check_interval = 30;
+        this.#ext = ext;
 
-
-        this._icon = new St.Icon({
+        this.#icon = new St.Icon({
             icon_name: 'security-medium-symbolic',
             style_class: 'system-status-icon',
         });
 
-        this.add_child(this._icon);
-
-        this.changeLevel('medium');
+        this.add_child(this.#icon);
 
         this.menu.addAction(_('Settings...'),
-                            this.editSettings.bind(this),
-                            'document-edit-symbolic');
+                            this.#ext.openPreferences.bind(this.#ext),
+                            'preferences-other-symbolic');
 
-        this.menu.addAction(_('Lock keyring'),
-                            this.lockKeyring.bind(this),
-                            'channel-secure-symbolic');
+        this.#lock_item = this.menu.addAction(_('Lock the keyring now.'),
+                                              this.#ext.lockTask.bind(this.#ext),
+                                              'channel-secure-symbolic');
 
-        Main.panel.addToStatusArea(uuid, this);
-
-
-        GLib.idle_add(300, () => { this.checkKeyring(); return false; });
-        this._check_source = GLib.timeout_add(300,
-                                              this._check_interval * 1000,
-                                              this.checkKeyring.bind(this));
-
-        this._lock_source = 0;
+        Main.panel.addToStatusArea(this.#ext.uuid, this);
     }
 
 
@@ -81,31 +71,21 @@ class Indicator extends PanelMenu.Button {
 
     destroy()
     {
-        if (this._check_source) {
-            GLib.Source.remove(this._check_source);
-            this._check_source = 0;
-        }
+        this.#ext = null;
 
-        this.cancelLock();
+        this.#icon.destroy();
+        this.#icon = null;
 
-        this._icon.destroy();
-        this._icon = null;
+        this.#lock_item.destroy();
+        this.#lock_item = null;
 
         super.destroy();
     }
 
 
-    changeLevel(level)
+    updateIcon(name)
     {
-        if (level == this._current_level)
-            return;
-        this._current_level = level;
-        const level_to_icon = {
-            'high': 'security-high-symbolic',
-            'medium': 'security-medium-symbolic',
-            'low': 'security-low-symbolic'
-        };
-        this._icon.set_icon_name(level_to_icon[level]);
+        this.#icon.set_icon_name(name);
     }
 
 
@@ -113,106 +93,229 @@ class Indicator extends PanelMenu.Button {
     {
         super._onOpenStateChanged(menu, is_open);
         try {
-
+            await this.#ext.refreshLevel();
+            this.#lock_item.visible = this.#ext.level != 'high';
         }
         catch (e) {
             logError(e, 'onOpenStateChanged()');
         }
     }
 
+};
 
-    editSettings()
+
+class Extension {
+
+    #indicator;
+    #check_interval = 30;
+    #lock_delay = 60;
+    #check_source = 0;
+    #lock_source = 0;
+    #level = 'medium';
+    #settings;
+
+
+    constructor(meta)
+    {
+        this._uuid = meta.uuid;
+    }
+
+
+    enable()
+    {
+        this.#indicator = new Indicator(this);
+
+
+        this.#settings = ExtensionUtils.getSettings();
+
+        this.#settings.connect('changed::check-interval',
+                               (settings, key) => this.check_interval = settings.get_uint(key));
+
+        this.#settings.connect('changed::lock-delay',
+                               (settings, key) => this.lock_interval = settings.get_uint(key));
+
+        this.check_interval = this.#settings.get_uint('check-interval');
+        this.lock_delay = this.#settings.get_uint('lock-delay');
+
+        // do a one-time check right away
+        GLib.idle_add(300, () => { this.checkTask(); return false; });
+
+    }
+
+
+    disable()
+    {
+        this.cancelCheckTask();
+        this.cancelLockTask();
+
+        this.#settings = null;
+
+        this.#indicator?.destroy();
+        this.#indicator = null;
+    }
+
+
+    openPreferences()
     {
         ExtensionUtils.openPrefs();
     }
 
 
-    async lockKeyring()
+    set level(val)
     {
-        try {
-
-            let [service, collections] = await this.getCollections();
-
-            let [n, locked] = await service.lock(collections, null);
-            console.log(`Locked ${n} collections in the keyring.`);
-
-            await this.checkKeyring();
-        }
-        catch (e) {
-            logError(e, 'lockKeyring()');
-        }
+        if (val == this.#level)
+            return;
+        this.#level = val;
+        const level_to_icon = {
+            'high': 'security-high-symbolic',
+            'medium': 'security-medium-symbolic',
+            'low': 'security-low-symbolic'
+        };
+        this.#indicator.updateIcon(level_to_icon[this.#level]);
     }
 
 
-    async checkKeyring()
+    get level()
+    {
+        return this.#level;
+    }
+
+
+    async refreshLevel()
     {
         try {
             const [service, collections] = await this.getCollections();
-
-            //collections.forEach(c => log(`${c.get_object_path()}.locked = ${c.get_locked()}`));
 
             const locked = collections.reduce((total, c) => total + c.locked, 0);
 
             /*
              * BUG: libsecret does not always report the updated locked state on
              * password-less collections. But if we disonnect the service, it will work
-             * correctly.
+             * correctly next time.
              */
             Secret.Service.disconnect();
 
             if (locked == collections.length)
-                this.changeLevel('high');
-            else {
-                if (locked == 0)
-                    this.changeLevel('low');
-                else
-                    this.changeLevel('medium');
-
-                if (!this.hasPendingLock())
-                    this.scheduleLock();
-            }
+                this.level = 'high';
+            else if (locked == 0)
+                this.level = 'low';
+            else
+                this.level = 'medium';
         }
         catch (e) {
-            logError(e, 'checkKeyring()');
+            logError(e, 'getLevel()');
+        }
+    }
+
+
+    set check_interval(val)
+    {
+        this.#check_interval = val;
+        this.scheduleCheckTask();
+    }
+
+
+    get check_interval()
+    {
+        return this.#check_interval;
+    }
+
+
+    scheduleCheckTask()
+    {
+        this.cancelCheckTask();
+        this.#check_source = GLib.timeout_add(300,
+                                              this.check_interval * 1000,
+                                              this.checkTask.bind(this));
+    }
+
+
+    cancelCheckTask()
+    {
+        if (this.#check_source) {
+            GLib.Source.remove(this.#check_source);
+            this.#check_source = 0;
+        }
+    }
+
+
+    async checkTask()
+    {
+        try {
+            await this.refreshLevel();
+
+            // always schedule a lock if we're below 'high' and there isn't a lock scheduled
+            if (this.level != 'high')
+                if (!this.hasPendingLockTask())
+                    this.scheduleLockTask();
+        }
+        catch (e) {
+            logError(e, 'checkTask()');
         }
         return true; // continuous invocation
     }
 
 
+    set lock_delay(val)
+    {
+        this.#lock_delay = val;
+        if (this.hasPendingLockTask()) {
+            this.cancelLockTask();
+            this.scheduleLockTask();
+        }
+    }
+
+
+    get lock_delay()
+    {
+        return this.#lock_delay;
+    }
+
+
     // return true if there's already a locking task scheduled
-    hasPendingLock()
+    hasPendingLockTask()
     {
-        return this._lock_source != 0;
+        return this.#lock_source != 0;
     }
 
 
-    scheduleLock()
+    scheduleLockTask()
     {
-        this.cancelLock();
-        this._lock_source = GLib.timeout_add(0,
-                                             this._lock_delay * 1000,
-                                             this.lockCallback.bind(this));
+        this.cancelLockTask();
+        this.#lock_source = GLib.timeout_add(0,
+                                             this.lock_delay * 1000,
+                                             this.lockTask.bind(this));
     }
 
 
-    cancelLock()
+    cancelLockTask()
     {
-        if (!this.hasPendingLock())
+        if (!this.hasPendingLockTask())
             return;
-        GLib.Source.remove(this._lock_source);
-        this._lock_source = 0;
+        GLib.Source.remove(this.#lock_source);
+        this.#lock_source = 0;
     }
 
 
-    lockCallback()
+    async lockTask()
     {
-        this.cancelLock();
-        this.lockKeyring();
-        return false;
+        this.cancelLockTask();
+        try {
+            let [service, collections] = await this.getCollections();
+
+            let [n, locked] = await service.lock(collections, null);
+            // console.log(`Locked ${n} collections in the keyring.`);
+
+            await this.checkTask();
+        }
+        catch (e) {
+            logError(e, 'lockTask()');
+        }
+        return false; // means "don't call again"
     }
 
 
-    // return all collections we want to lock, exclude 'session'.
+    // return all collections we want to lock, except 'session'.
     async getCollections()
     {
         let service = await Secret.Service.get(Secret.ServiceFlags.LOAD_COLLECTIONS, null);
@@ -231,31 +334,8 @@ class Indicator extends PanelMenu.Button {
 };
 
 
-class Extension {
-
-    constructor(uuid)
-    {
-        this._uuid = uuid;
-    }
-
-
-    enable()
-    {
-        this._indicator = new Indicator(this._uuid);
-    }
-
-
-    disable()
-    {
-        this._indicator?.destroy();
-        this._indicator = null;
-    }
-
-};
-
-
 function init(meta)
 {
     ExtensionUtils.initTranslations();
-    return new Extension(meta.uuid);
+    return new Extension(meta);
 }

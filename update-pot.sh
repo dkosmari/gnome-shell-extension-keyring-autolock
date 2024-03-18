@@ -1,14 +1,13 @@
 #!/bin/bash -xe
 
-REF_POT='po/totp@dkosmari.github.com.pot'
+REF_POT=(po/*.pot)
 
 xgettext \
      --from-code=UTF-8 \
      --copyright-holder='Daniel K. O.' \
-     --package-name='TOTP' \
-     --msgid-bugs='https://github.com/dkosmari/gnome-shell-extension-totp' \
+     --package-name='Keyring Autolock' \
+     --msgid-bugs='https://github.com/dkosmari/gnome-shell-extension-keyring-autolock' \
      --output="$REF_POT" \
-     src/*.js \
      *.js
 
 

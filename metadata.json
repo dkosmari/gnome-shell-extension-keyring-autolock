@@ -1,8 +1,9 @@
 {
     "name": "Keyring Autolock",
-    "description": "Automatically lock the keyring after a minute.",
+    "description": "Show the keyring's locked state, and automatically lock it after a certain amount of time.",
     "uuid": "keyring-autolock@dkosmari.github.com",
     "url": "https://github.com/dkosmari/gnome-shell-extension-keyring-autolock",
     "gettext-domain": "keyring-autolock@dkosmari.github.com",
+    "settings-schema": "org.gnome.shell.extensions.keyring-autolock",
     "shell-version": [ "44" ]
 }
