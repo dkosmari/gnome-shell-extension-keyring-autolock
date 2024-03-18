@@ -4,21 +4,19 @@
  */
 
 
-const {
-    Gio,
-    GLib,
-    GObject,
-    Secret,
-    St
-} = imports.gi;
+import Gio from 'gi://Gio';
+import GLib from 'gi://GLib';
+import GObject from 'gi://GObject';
+import Secret from 'gi://Secret';
+import St from 'gi://St';
 
-const ExtensionUtils = imports.misc.extensionUtils;
-const Main = imports.ui.main;
-const PanelMenu = imports.ui.panelMenu;
-const PopupMenu = imports.ui.popupMenu;
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 
-
-const _ = ExtensionUtils.gettext;
+import {
+    Extension,
+    gettext as _
+} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 
 Gio._promisify(Secret.Collection, 'for_alias', 'for_alias_finish');
@@ -59,7 +57,7 @@ class Indicator extends PanelMenu.Button {
                                               this.#ext.lockTask.bind(this.#ext),
                                               'channel-secure-symbolic');
 
-        Main.panel.addToStatusArea(this.#ext.uuid, this);
+        Main.panel.addToStatusArea(this.#ext.metadata.uuid, this);
     }
 
 
@@ -104,7 +102,8 @@ class Indicator extends PanelMenu.Button {
 };
 
 
-class Extension {
+export default
+class KeyringAutolockExtension extends Extension {
 
     #indicator;
     #check_interval = 30;
@@ -115,18 +114,12 @@ class Extension {
     #settings;
 
 
-    constructor(meta)
-    {
-        this._uuid = meta.uuid;
-    }
-
-
     enable()
     {
         this.#indicator = new Indicator(this);
 
 
-        this.#settings = ExtensionUtils.getSettings();
+        this.#settings = this.getSettings();
 
         this.#settings.connect('changed::check-interval',
                                (settings, key) => this.check_interval = settings.get_uint(key));
@@ -152,12 +145,6 @@ class Extension {
 
         this.#indicator?.destroy();
         this.#indicator = null;
-    }
-
-
-    openPreferences()
-    {
-        ExtensionUtils.openPrefs();
     }
 
 
@@ -332,10 +319,3 @@ class Extension {
     }
 
 };
-
-
-function init(meta)
-{
-    ExtensionUtils.initTranslations();
-    return new Extension(meta);
-}

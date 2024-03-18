@@ -4,20 +4,17 @@
  */
 
 
-const {
-    Adw,
-    GObject,
-    Gtk
-} = imports.gi;
+import Adw from 'gi://Adw';
+import GObject from 'gi://GObject';
+import Gtk from 'gi://Gtk';
 
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
-
-
-const _ = ExtensionUtils.gettext;
+import {
+    ExtensionPreferences,
+    gettext as _
+} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
 
-class KeyringAutolockPreferences extends Adw.PreferencesPage {
+class KeyringAutolockPreferencesPage extends Adw.PreferencesPage {
 
     static {
         GObject.registerClass(this);
@@ -29,13 +26,13 @@ class KeyringAutolockPreferences extends Adw.PreferencesPage {
     #lock_spin;
 
 
-    constructor()
+    constructor(ext)
     {
         super({
             title: _('General settings')
         });
 
-        this.#settings = ExtensionUtils.getSettings();
+        this.#settings = ext.getSettings();
 
 
         let timer_group = new Adw.PreferencesGroup({
@@ -89,13 +86,12 @@ class KeyringAutolockPreferences extends Adw.PreferencesPage {
 };
 
 
-function buildPrefsWidget()
-{
-    return new KeyringAutolockPreferences();
-}
+export default
+class KeyringAutolockPreferences extends ExtensionPreferences {
 
+    fillPreferencesWindow(window)
+    {
+        window.add(new KeyringAutolockPreferencesPage(this));
+    }
 
-function init(meta)
-{
-    ExtensionUtils.initTranslations();
-}
+};
