@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Keyring Autolock\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "keyring-autolock\n"
-"POT-Creation-Date: 2024-03-18 02:51-0300\n"
+"POT-Creation-Date: 2024-03-18 21:19-0300\n"
 "PO-Revision-Date: 2024-03-17 23:03-0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -27,27 +27,27 @@ msgstr "Impostazioni..."
 msgid "Lock the keyring now."
 msgstr "Chiudi subito il portachiavi."
 
-#: prefs.js:35
+#: prefs.js:36
 msgid "General settings"
 msgstr "Impostazioni generali"
 
-#: prefs.js:42
+#: prefs.js:43
 msgid "Timers"
 msgstr "Temporizzatori"
 
-#: prefs.js:48
+#: prefs.js:49
 msgid "Check interval (seconds)"
 msgstr "Intervallo di controllo (secondi)"
 
-#: prefs.js:49
+#: prefs.js:50
 msgid "The keyring is checked periodically, to detect if it is unlocked."
 msgstr ""
 "Il portachiavi viene controllato periodicamente, per rilevare se è sbloccato."
 
-#: prefs.js:68
+#: prefs.js:69
 msgid "Lock delay (seconds)"
 msgstr "Ritardo blocco (secondi)"
 
-#: prefs.js:69
+#: prefs.js:70
 msgid "How long the keyring is allowed to stay unlocked."
 msgstr "Per quanto tempo il portachiavi può rimanere sbloccato."
