@@ -4,7 +4,7 @@
           path="/org/gnome/shell/extensions/keyring-autolock/"
           gettext-domain="keyring-autolock@dkosmari.github.com">
     <key name="check-interval" type="u">
-      <default>30</default>
+      <default>120</default>
       <range min="1" />
       <summary>Interval (in seconds) between keyring checks.</summary>
       <description>
@@ -13,7 +13,7 @@
       </description>
     </key>
     <key name="lock-delay" type="u">
-      <default>60</default>
+      <default>300</default>
       <summary>Delay (in seconds) until the lock happens.</summary>
       <description>
         How long the keyring is allowed to remain unlocked.
