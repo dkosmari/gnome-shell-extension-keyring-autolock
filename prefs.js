@@ -18,7 +18,7 @@ const Me = ExtensionUtils.getCurrentExtension();
 const _ = ExtensionUtils.gettext;
 
 
-class KeyringAutolockPreferences extends Adw.PreferencesPage {
+class KeyringAutolockPreferencesPage extends Adw.PreferencesPage {
 
     static {
         GObject.registerClass(this);
@@ -30,13 +30,13 @@ class KeyringAutolockPreferences extends Adw.PreferencesPage {
     #lock_spin;
 
 
-    constructor()
+    constructor(ext)
     {
         super({
             title: _('General settings')
         });
 
-        this.#settings = ExtensionUtils.getSettings();
+        this.#settings = ext.getSettings();
 
 
         let timer_group = new Adw.PreferencesGroup({
@@ -92,7 +92,7 @@ class KeyringAutolockPreferences extends Adw.PreferencesPage {
 
 function buildPrefsWidget()
 {
-    return new KeyringAutolockPreferences();
+    return new KeyringAutolockPreferencesPage(ExtensionUtils);
 }
 
 
