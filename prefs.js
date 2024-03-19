@@ -51,15 +51,15 @@ class KeyringAutolockPreferencesPage extends Adw.PreferencesPage {
             adjustment: new Gtk.Adjustment({
                 lower: 1,
                 upper: 3600,
-                page_increment: 60,
-                step_increment: 15,
+                page_increment: 120,
+                step_increment: 30,
             }),
-            value: this.#settings.get_uint('check-interval'),
             width_chars: 6
         });
         check_row.add_suffix(this.#check_spin);
-        this.#check_spin.connect('value-changed',
-                                 spin => this.#settings.set_uint('check-interval', spin.value));
+        this.#settings.bind('check-interval',
+                            this.#check_spin, 'value',
+                            Gio.SettingsBindFlags.DEFAULT);
 
         let lock_row = new Adw.ActionRow({
             title: _('Lock delay (seconds)'),
@@ -74,12 +74,12 @@ class KeyringAutolockPreferencesPage extends Adw.PreferencesPage {
                 page_increment: 300,
                 step_increment: 60,
             }),
-            value: this.#settings.get_uint('lock-delay'),
             width_chars: 6
         });
         lock_row.add_suffix(this.#lock_spin);
-        this.#lock_spin.connect('value-changed',
-                                spin => this.#settings.set_uint('lock-delay', spin.value));
+        this.#settings.bind('lock-delay',
+                            this.#lock_spin, 'value',
+                            Gio.SettingsBindFlags.DEFAULT);
 
     }
 
