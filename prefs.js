@@ -55,8 +55,8 @@ class KeyringAutolockPreferencesPage extends Adw.PreferencesPage {
             adjustment: new Gtk.Adjustment({
                 lower: 1,
                 upper: 3600,
-                page_increment: 60,
-                step_increment: 15,
+                page_increment: 120,
+                step_increment: 30,
             }),
             width_chars: 6
         });
