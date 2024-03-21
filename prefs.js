@@ -90,9 +90,9 @@ class KeyringAutolockPreferencesPage extends Adw.PreferencesPage {
 };
 
 
-function buildPrefsWidget()
+function fillPreferencesWindow(window)
 {
-    return new KeyringAutolockPreferencesPage(ExtensionUtils);
+    window.add(new KeyringAutolockPreferencesPage(ExtensionUtils));
 }
 
 
