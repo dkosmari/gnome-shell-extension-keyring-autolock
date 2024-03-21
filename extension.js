@@ -136,7 +136,11 @@ class Extension {
         this.lock_delay = this.#settings.get_uint('lock-delay');
 
         // do a one-time check right away
-        GLib.idle_add(300, () => { this.checkTask(); return false; });
+        GLib.idle_add(GLib.PRIORITY_DEFAULT,
+                      () => {
+                          this.checkTask();
+                          return GLib.SOURCE_REMOVE;
+                      });
 
     }
 
@@ -222,7 +226,7 @@ class Extension {
     scheduleCheckTask()
     {
         this.cancelCheckTask();
-        this.#check_source = GLib.timeout_add(300,
+        this.#check_source = GLib.timeout_add(GLib.PRIORITY_LOW,
                                               this.check_interval * 1000,
                                               this.checkTask.bind(this));
     }
@@ -250,7 +254,7 @@ class Extension {
         catch (e) {
             logError(e, 'checkTask()');
         }
-        return true; // continuous invocation
+        return GLib.SOURCE_CONTINUE;
     }
 
 
@@ -280,7 +284,7 @@ class Extension {
     scheduleLockTask()
     {
         this.cancelLockTask();
-        this.#lock_source = GLib.timeout_add(0,
+        this.#lock_source = GLib.timeout_add(GLib.PRIORITY_DEFAULT,
                                              this.lock_delay * 1000,
                                              this.lockTask.bind(this));
     }
@@ -309,7 +313,7 @@ class Extension {
         catch (e) {
             logError(e, 'lockTask()');
         }
-        return false; // means "don't call again"
+        return GLib.SOURCE_REMOVE;
     }
 
 
