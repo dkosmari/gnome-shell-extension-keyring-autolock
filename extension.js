@@ -165,13 +165,10 @@ class Extension {
 
     set level(val)
     {
-        if (val == this.#level)
-            return;
-        this.#level = val;
         const level_to_icon = {
-            'high': 'security-high-symbolic',
-            'medium': 'security-medium-symbolic',
-            'low': 'security-low-symbolic'
+            'high'   : 'security-high-symbolic',
+            'medium' : 'security-medium-symbolic',
+            'low'    : 'security-low-symbolic'
         };
         this.#indicator.updateIcon(level_to_icon[this.#level]);
     }
