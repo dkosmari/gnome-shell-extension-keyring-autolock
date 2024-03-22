@@ -12,6 +12,7 @@ import St from 'gi://St';
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
+import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 
 import {
     Extension,
@@ -34,6 +35,7 @@ class Indicator extends PanelMenu.Button {
     #ext;
     #icon;
     #lock_item;
+    #status_item;
 
 
     constructor(ext)
@@ -53,7 +55,10 @@ class Indicator extends PanelMenu.Button {
                             this.#ext.openPreferences.bind(this.#ext),
                             'preferences-other-symbolic');
 
-        this.#lock_item = this.menu.addAction(_('Lock the keyring now.'),
+        this.#status_item = new PopupMenu.PopupSeparatorMenuItem();
+        this.menu.addMenuItem(this.#status_item);
+
+        this.#lock_item = this.menu.addAction(_('Lock the keyring now'),
                                               this.#ext.lockTask.bind(this.#ext),
                                               'channel-secure-symbolic');
 
@@ -77,6 +82,9 @@ class Indicator extends PanelMenu.Button {
         this.#lock_item.destroy();
         this.#lock_item = null;
 
+        this.#status_item.destroy();
+        this.#status_item = null;
+
         super.destroy();
     }
 
@@ -91,8 +99,9 @@ class Indicator extends PanelMenu.Button {
     {
         super._onOpenStateChanged(menu, is_open);
         try {
-            await this.#ext.refreshLevel();
-            this.#lock_item.visible = this.#ext.level != 'high';
+            const [locked, total, level] = await this.#ext.refreshLevel();
+            this.#status_item.label.text = _('Locked:') + ` ${locked} / ${total}`;
+            this.#lock_item.visible = level != 'high';
         }
         catch (e) {
             logError(e, 'onOpenStateChanged()');
@@ -154,6 +163,7 @@ class KeyringAutolockExtension extends Extension {
 
     set level(val)
     {
+        this.#level = val;
         const level_to_icon = {
             'high'   : 'security-high-symbolic',
             'medium' : 'security-medium-symbolic',
@@ -189,9 +199,12 @@ class KeyringAutolockExtension extends Extension {
                 this.level = 'low';
             else
                 this.level = 'medium';
+
+            return [locked, collections.length, this.level];
         }
         catch (e) {
             logError(e, 'getLevel()');
+            return [0, 0, 'medium'];
         }
     }
 
