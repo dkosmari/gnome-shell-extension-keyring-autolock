@@ -6,15 +6,18 @@ current keyring status (fully unlocked, partially locked, fully locked) in the i
 icon. There's also a menu option to immediately lock the keyring.
 
 
+Installing from GNOME Extensions website
+----------------------------------------
+
+The extension can be installed from the [GNOME Extensions
+website](https://extensions.gnome.org/extension/6846/keyring-autolock/).
+
+
 Installing from sources
 -----------------------
 
-To create an installable .zip file, run:
+Run:
 
-    ./bundle.sh
-
-Then to install it, run:
-
-    ./install.sh
+    make install
 
 
