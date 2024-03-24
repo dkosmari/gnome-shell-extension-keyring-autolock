@@ -1,7 +1,6 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR Daniel K. O.
+# Keyring Autolock - A GNOME extension to automatically lock the keyring.
+# Copyright (C) 2024 Daniel K. O.
 # This file is distributed under the same license as the Keyring Autolock package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 msgid ""
 msgstr ""

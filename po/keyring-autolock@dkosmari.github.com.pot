@@ -1,7 +1,6 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR Daniel K. O.
+# Keyring Autolock - A GNOME extension to automatically lock the keyring.
+# Copyright (C) 2024 Daniel K. O.
 # This file is distributed under the same license as the Keyring Autolock package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
 msgid ""
@@ -15,8 +14,9 @@ msgstr ""
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.2.2\n"
 
 #: extension.js:54
 msgid "Settings..."
