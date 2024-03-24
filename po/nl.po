@@ -1,0 +1,58 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Daniel K. O.
+# This file is distributed under the same license as the Keyring Autolock package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Keyring Autolock\n"
+"Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
+"keyring-autolock\n"
+"POT-Creation-Date: 2024-03-22 13:25-0300\n"
+"PO-Revision-Date: 2024-03-24 17:35+0100\n"
+"Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
+"Language-Team: \n"
+"Language: nl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.2.2\n"
+
+#: extension.js:54
+msgid "Settings..."
+msgstr "Voorkeuren…"
+
+#: extension.js:61
+msgid "Lock the keyring now"
+msgstr "Sleutelbos vergrendelen"
+
+#: extension.js:103
+msgid "Locked:"
+msgstr "Vergrendeld:"
+
+#: prefs.js:33
+msgid "General settings"
+msgstr "Algemene voorkeuren"
+
+#: prefs.js:40
+msgid "Timers"
+msgstr "Tijdklokken"
+
+#: prefs.js:46
+msgid "Check interval (seconds)"
+msgstr "Controleren, elke"
+
+#: prefs.js:47
+msgid "The keyring is checked periodically, to detect if it is unlocked."
+msgstr ""
+"De vergrendelstatus van de sleutelbos wordt geregeld (elke x-aantal "
+"seconden) gecontroleerd."
+
+#: prefs.js:66
+msgid "Lock delay (seconds)"
+msgstr "Vergrendelen na"
+
+#: prefs.js:67
+msgid "How long the keyring is allowed to stay unlocked."
+msgstr "Hoelang de sleutelbos ontgrendeld mag zijn (in seconden)."
