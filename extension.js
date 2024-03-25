@@ -114,12 +114,15 @@ class Indicator extends PanelMenu.Button {
 export default
 class KeyringAutolockExtension extends Extension {
 
-    #indicator;
     #check_interval = 30;
-    #lock_delay = 60;
+    #check_interval_signal = 0;
+    #check_idle_source = 0;
     #check_source = 0;
-    #lock_source = 0;
+    #indicator;
     #level = 'medium';
+    #lock_delay = 60;
+    #lock_delay_signal = 0;
+    #lock_source = 0;
     #settings;
 
 
@@ -130,21 +133,29 @@ class KeyringAutolockExtension extends Extension {
 
         this.#settings = this.getSettings();
 
-        this.#settings.connect('changed::check-interval',
-                               (settings, key) => this.check_interval = settings.get_uint(key));
+        this.#check_interval_signal =
+            this.#settings.connect('changed::check-interval',
+                                   (settings, key) => {
+                                       this.check_interval = settings.get_uint(key);
+                                   });
 
-        this.#settings.connect('changed::lock-delay',
-                               (settings, key) => this.lock_interval = settings.get_uint(key));
+        this.#lock_delay_signal =
+            this.#settings.connect('changed::lock-delay',
+                                   (settings, key) => {
+                                       this.lock_interval = settings.get_uint(key);
+                                   });
 
         this.check_interval = this.#settings.get_uint('check-interval');
         this.lock_delay = this.#settings.get_uint('lock-delay');
 
         // do a one-time check right away
-        GLib.idle_add(GLib.PRIORITY_DEFAULT,
-                      () => {
-                          this.checkTask();
-                          return GLib.SOURCE_REMOVE;
-                      });
+        this.#check_idle_source =
+            GLib.idle_add(GLib.PRIORITY_DEFAULT,
+                          () => {
+                              this.checkTask();
+                              this.#check_idle_source = 0;
+                              return GLib.SOURCE_REMOVE;
+                          });
 
     }
 
@@ -153,6 +164,21 @@ class KeyringAutolockExtension extends Extension {
     {
         this.cancelCheckTask();
         this.cancelLockTask();
+
+        if (this.#check_idle_source) {
+            GLib.Source.remove(this.#check_idle_source);
+            this.#check_idle_source = 0;
+        }
+
+        if (this.#check_interval_signal) {
+            this.#settings?.disconnect(this.#check_interval_signal);
+            this.#check_interval_signal = 0;
+        }
+
+        if (this.#lock_delay_signal) {
+            this.#settings?.disconnect(this.#lock_delay_signal);
+            this.#lock_delay_signal = 0;
+        }
 
         this.#settings = null;
 
@@ -169,7 +195,7 @@ class KeyringAutolockExtension extends Extension {
             'medium' : 'security-medium-symbolic',
             'low'    : 'security-low-symbolic'
         };
-        this.#indicator.updateIcon(level_to_icon[this.#level]);
+        this.#indicator?.updateIcon(level_to_icon[this.#level]);
     }
 
 
@@ -182,16 +208,16 @@ class KeyringAutolockExtension extends Extension {
     async refreshLevel()
     {
         try {
-            const [service, collections] = await this.getCollections();
-
-            const locked = collections.reduce((total, c) => total + c.locked, 0);
-
             /*
-             * BUG: libsecret does not always report the updated locked state on
+             * WORKAROUND: libsecret does not always report the updated locked state on
              * password-less collections. But if we disonnect the service, it will work
              * correctly next time.
              */
             Secret.Service.disconnect();
+
+            const [service, collections] = await this.getCollections();
+
+            const locked = collections.reduce((total, c) => total + c.locked, 0);
 
             if (locked == collections.length)
                 this.level = 'high';
@@ -291,10 +317,10 @@ class KeyringAutolockExtension extends Extension {
 
     cancelLockTask()
     {
-        if (!this.hasPendingLockTask())
-            return;
-        GLib.Source.remove(this.#lock_source);
-        this.#lock_source = 0;
+        if (this.hasPendingLockTask()) {
+            GLib.Source.remove(this.#lock_source);
+            this.#lock_source = 0;
+        }
     }
 
 
