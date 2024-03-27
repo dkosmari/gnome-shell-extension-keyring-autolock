@@ -5,9 +5,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Keyring Autolock\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-27 16:34-0300\n"
-"PO-Revision-Date: 2024-03-22 13:00-0300\n"
+"Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
+"keyring-autolock\n"
+"POT-Creation-Date: 2024-03-27 17:12-0300\n"
+"PO-Revision-Date: 2024-03-27 17:14-0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: it\n"
@@ -34,17 +35,17 @@ msgid "General settings"
 msgstr "Impostazioni generali"
 
 #: prefs.js:44
-#, fuzzy
-msgid "General options"
-msgstr "Impostazioni generali"
+msgid "Indicator"
+msgstr "Indicatore"
 
 #: prefs.js:50
-msgid "Hide while locked"
-msgstr ""
+msgid "Hide indicator if locked"
+msgstr "Nascondi indicatore se bloccato"
 
 #: prefs.js:51
 msgid "Keep the indicator icon hidden while the keyring is locked."
 msgstr ""
+"Mantieni nascosta l'icona dell'indicatore mentre il portachiavi è bloccato."
 
 #: prefs.js:65
 msgid "Timers"
@@ -66,3 +67,7 @@ msgstr "Ritardo blocco (secondi)"
 #: prefs.js:94
 msgid "How long the keyring is allowed to stay unlocked."
 msgstr "Per quanto tempo il portachiavi può rimanere sbloccato."
+
+#, fuzzy
+#~ msgid "General options"
+#~ msgstr "Impostazioni generali"

@@ -40,17 +40,17 @@ class KeyringAutolockPreferencesPage extends Adw.PreferencesPage {
         this.#settings = ext.getSettings();
 
 
-        let general_group = new Adw.PreferencesGroup({
-            title: _('General options')
+        let indicator_group = new Adw.PreferencesGroup({
+            title: _('Indicator')
         });
-        this.add(general_group);
+        this.add(indicator_group);
 
 
         let hide_row = new Adw.ActionRow({
-            title: _('Hide while locked'),
+            title: _('Hide indicator if locked'),
             tooltip_text: _('Keep the indicator icon hidden while the keyring is locked.')
         });
-        general_group.add(hide_row);
+        indicator_group.add(hide_row);
 
         this.#hide_switch = new Gtk.Switch({
             valign: Gtk.Align.CENTER
