@@ -7,6 +7,7 @@ endif
 
 UUID := $(shell $(JQ) -r ".uuid" metadata.json)
 GETTEXT_DOMAIN := $(shell $(JQ) -r '.["gettext-domain"]' metadata.json)
+SETTINGS_SCHEMA := $(shell $(JQ) -r '.["settings-schema"]' metadata.json)
 
 
 ZIP_FILE := $(UUID).shell-extension.zip
@@ -20,6 +21,8 @@ EXTRA_DIST := \
 	AUTHORS \
 	COPYING \
 	README.md
+
+GSCHEMA_XML_FILE := schemas/$(SETTINGS_SCHEMA).gschema.xml
 
 
 .PHONY: all clean install update-po
@@ -37,7 +40,7 @@ install: $(ZIP_FILE)
 	gnome-extensions install --force $(ZIP_FILE)
 
 
-$(ZIP_FILE): $(SOURCES) $(EXTRA_SOURCES) $(EXTRA_DIST) $(PO_FILES)
+$(ZIP_FILE): $(SOURCES) $(EXTRA_SOURCES) $(EXTRA_DIST) $(GSCHEMA_XML_FILE) $(PO_FILES)
 	gnome-extensions pack \
 		--force \
 		--podir=po \

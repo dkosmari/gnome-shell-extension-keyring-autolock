@@ -19,5 +19,9 @@
         How long the keyring is allowed to remain unlocked.
       </description>
     </key>
+    <key name="hide-locked" type="b">
+      <default>false</default>
+      <summary>Hide the indicator icon while the keyring is locked.</summary>
+    </key>
   </schema>
 </schemalist>

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keyring Autolock\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-25 12:57-0300\n"
+"POT-Creation-Date: 2024-03-27 16:34-0300\n"
 "PO-Revision-Date: 2024-03-22 12:57-0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -29,27 +29,40 @@ msgstr "Bloquear o chaveiro agora"
 msgid "Locked:"
 msgstr "Bloqueado:"
 
-#: prefs.js:36
+#: prefs.js:37
 msgid "General settings"
 msgstr "Configurações gerais"
 
-#: prefs.js:43
+#: prefs.js:44
+#, fuzzy
+msgid "General options"
+msgstr "Configurações gerais"
+
+#: prefs.js:50
+msgid "Hide while locked"
+msgstr ""
+
+#: prefs.js:51
+msgid "Keep the indicator icon hidden while the keyring is locked."
+msgstr ""
+
+#: prefs.js:65
 msgid "Timers"
 msgstr "Temporizadores"
 
-#: prefs.js:49
+#: prefs.js:71
 msgid "Check interval (seconds)"
 msgstr "Intervalo de teste (segundos)"
 
-#: prefs.js:50
+#: prefs.js:72
 msgid "The keyring is checked periodically, to detect if it is unlocked."
 msgstr ""
 "O chaveiro é testado periodicamente, para detectar se está destrancado."
 
-#: prefs.js:69
+#: prefs.js:93
 msgid "Lock delay (seconds)"
 msgstr "Atraso para trancar (segundos)"
 
-#: prefs.js:70
+#: prefs.js:94
 msgid "How long the keyring is allowed to stay unlocked."
 msgstr "Quanto tempo é permitido que o chaveiro permaneça desbloqueado."
