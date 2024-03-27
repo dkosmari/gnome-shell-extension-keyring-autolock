@@ -68,6 +68,3 @@ msgstr "Ritardo blocco (secondi)"
 msgid "How long the keyring is allowed to stay unlocked."
 msgstr "Per quanto tempo il portachiavi può rimanere sbloccato."
 
-#, fuzzy
-#~ msgid "General options"
-#~ msgstr "Impostazioni generali"

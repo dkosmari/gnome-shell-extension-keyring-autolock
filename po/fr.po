@@ -68,6 +68,3 @@ msgstr "Délai de verrouillage (secondes)"
 msgid "How long the keyring is allowed to stay unlocked."
 msgstr "Combien de temps le porte-clés peut rester déverrouillé."
 
-#, fuzzy
-#~ msgid "General options"
-#~ msgstr "Réglages généraux"

@@ -69,6 +69,3 @@ msgstr "Atraso para trancar (segundos)"
 msgid "How long the keyring is allowed to stay unlocked."
 msgstr "Quanto tempo é permitido que o chaveiro permaneça desbloqueado."
 
-#, fuzzy
-#~ msgid "General options"
-#~ msgstr "Configurações gerais"

@@ -70,6 +70,3 @@ msgstr "Vergrendelen na"
 msgid "How long the keyring is allowed to stay unlocked."
 msgstr "Hoelang de sleutelbos ontgrendeld mag zijn (in seconden)."
 
-#, fuzzy
-#~ msgid "General options"
-#~ msgstr "Algemene voorkeuren"

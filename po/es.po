@@ -68,6 +68,3 @@ msgstr "Retardo de bloqueo (segundos)"
 msgid "How long the keyring is allowed to stay unlocked."
 msgstr "Cuánto tiempo se permite que el llavero permanezca desbloqueado."
 
-#, fuzzy
-#~ msgid "General options"
-#~ msgstr "Configuración general"
