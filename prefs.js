@@ -22,9 +22,10 @@ class KeyringAutolockPreferencesPage extends Adw.PreferencesPage {
     }
 
 
-    #settings;
     #check_spin;
+    #hide_switch;
     #lock_spin;
+    #settings;
 
 
     constructor(ext)
@@ -34,6 +35,27 @@ class KeyringAutolockPreferencesPage extends Adw.PreferencesPage {
         });
 
         this.#settings = ext.getSettings();
+
+
+        let indicator_group = new Adw.PreferencesGroup({
+            title: _('Indicator')
+        });
+        this.add(indicator_group);
+
+
+        let hide_row = new Adw.ActionRow({
+            title: _('Hide indicator if locked'),
+            tooltip_text: _('Keep the indicator icon hidden while the keyring is locked.')
+        });
+        indicator_group.add(hide_row);
+
+        this.#hide_switch = new Gtk.Switch({
+            valign: Gtk.Align.CENTER
+        });
+        hide_row.add_suffix(this.#hide_switch);
+        this.#settings.bind('hide-locked',
+                            this.#hide_switch, 'active',
+                            Gio.SettingsBindFlags.DEFAULT);
 
 
         let timer_group = new Adw.PreferencesGroup({
@@ -55,12 +77,14 @@ class KeyringAutolockPreferencesPage extends Adw.PreferencesPage {
                 page_increment: 120,
                 step_increment: 30,
             }),
-            width_chars: 6
+            width_chars: 6,
+            valign: Gtk.Align.CENTER
         });
         check_row.add_suffix(this.#check_spin);
         this.#settings.bind('check-interval',
                             this.#check_spin, 'value',
                             Gio.SettingsBindFlags.DEFAULT);
+
 
         let lock_row = new Adw.ActionRow({
             title: _('Lock delay (seconds)'),
@@ -75,7 +99,8 @@ class KeyringAutolockPreferencesPage extends Adw.PreferencesPage {
                 page_increment: 300,
                 step_increment: 60,
             }),
-            width_chars: 6
+            width_chars: 6,
+            valign: Gtk.Align.CENTER
         });
         lock_row.add_suffix(this.#lock_spin);
         this.#settings.bind('lock-delay',

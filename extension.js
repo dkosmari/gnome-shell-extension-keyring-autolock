@@ -116,13 +116,15 @@ class KeyringAutolockExtension extends Extension {
 
     #check_interval = 30;
     #check_interval_signal = 0;
-    #check_idle_source = 0;
-    #check_source = 0;
+    #hide_locked = false;
+    #hide_locked_signal = 0;
+    #idle_check_source = 0;
     #indicator;
     #level = 'medium';
     #lock_delay = 60;
     #lock_delay_signal = 0;
-    #lock_source = 0;
+    #delayed_lock_source = 0;
+    #periodic_check_source = 0;
     #settings;
 
 
@@ -139,40 +141,39 @@ class KeyringAutolockExtension extends Extension {
                                        this.check_interval = settings.get_uint(key);
                                    });
 
+        this.#hide_locked_signal =
+            this.#settings.connect('changed::hide-locked',
+                                   (settings, key) => {
+                                       this.hide_locked = settings.get_boolean(key);
+                                   });
+
         this.#lock_delay_signal =
             this.#settings.connect('changed::lock-delay',
                                    (settings, key) => {
                                        this.lock_interval = settings.get_uint(key);
                                    });
 
+
         this.check_interval = this.#settings.get_uint('check-interval');
-        this.lock_delay = this.#settings.get_uint('lock-delay');
-
-        // do a one-time check right away
-        this.#check_idle_source =
-            GLib.idle_add(GLib.PRIORITY_DEFAULT,
-                          () => {
-                              this.checkTask();
-                              this.#check_idle_source = 0;
-                              return GLib.SOURCE_REMOVE;
-                          });
-
+        this.hide_locked    = this.#settings.get_boolean('hide-locked');
+        this.lock_delay     = this.#settings.get_uint('lock-delay');
     }
 
 
     disable()
     {
-        this.cancelCheckTask();
-        this.cancelLockTask();
-
-        if (this.#check_idle_source) {
-            GLib.Source.remove(this.#check_idle_source);
-            this.#check_idle_source = 0;
-        }
+        this.cancelPeriodicCheck();
+        this.cancelIdleCheck();
+        this.cancelDelayedLock();
 
         if (this.#check_interval_signal) {
             this.#settings?.disconnect(this.#check_interval_signal);
             this.#check_interval_signal = 0;
+        }
+
+        if (this.#hide_locked_signal) {
+            this.#settings?.disconnect(this.#hide_locked_signal);
+            this.#hide_locked_signal = 0;
         }
 
         if (this.#lock_delay_signal) {
@@ -195,6 +196,9 @@ class KeyringAutolockExtension extends Extension {
             'medium' : 'security-medium-symbolic',
             'low'    : 'security-low-symbolic'
         };
+        if (this.hide_locked)
+            this.#indicator.visible = this.#level != 'high';
+
         this.#indicator?.updateIcon(level_to_icon[this.#level]);
     }
 
@@ -238,7 +242,11 @@ class KeyringAutolockExtension extends Extension {
     set check_interval(val)
     {
         this.#check_interval = val;
-        this.scheduleCheckTask();
+        // set it up again, so it uses the new value
+        this.cancelPeriodicCheck();
+        this.schedulePeriodicCheck();
+        // do a check right now, for good measure
+        this.scheduleIdleCheck();
     }
 
 
@@ -248,20 +256,52 @@ class KeyringAutolockExtension extends Extension {
     }
 
 
-    scheduleCheckTask()
+    // Do a one-off check task as an idle callback.
+    scheduleIdleCheck()
     {
-        this.cancelCheckTask();
-        this.#check_source = GLib.timeout_add(GLib.PRIORITY_LOW,
-                                              this.check_interval * 1000,
-                                              this.checkTask.bind(this));
+        if (this.#idle_check_source) // already queued a check, don't do it twice
+            return;
+
+        this.#idle_check_source =
+            GLib.idle_add(GLib.PRIORITY_DEFAULT,
+                          async () => {
+                              this.cancelIdleCheck();
+                              try {
+                                  await this.checkTask();
+                              }
+                              catch (e) {
+                                  logError(e);
+                              }
+                              return GLib.SOURCE_REMOVE;
+                          });
     }
 
 
-    cancelCheckTask()
+    cancelIdleCheck()
     {
-        if (this.#check_source) {
-            GLib.Source.remove(this.#check_source);
-            this.#check_source = 0;
+        if (this.#idle_check_source) {
+            GLib.Source.remove(this.#idle_check_source);
+            this.#idle_check_source = 0;
+        }
+    }
+
+
+    schedulePeriodicCheck()
+    {
+        if (this.#periodic_check_source)
+            return;
+
+        this.#periodic_check_source = GLib.timeout_add(GLib.PRIORITY_LOW,
+                                                       this.check_interval * 1000,
+                                                       this.checkTask.bind(this));
+    }
+
+
+    cancelPeriodicCheck()
+    {
+        if (this.#periodic_check_source) {
+            GLib.Source.remove(this.#periodic_check_source);
+            this.#periodic_check_source = 0;
         }
     }
 
@@ -269,12 +309,12 @@ class KeyringAutolockExtension extends Extension {
     async checkTask()
     {
         try {
-            await this.refreshLevel();
+            let [locked, total, level] = await this.refreshLevel();
 
             // always schedule a lock if we're below 'high' and there isn't a lock scheduled
-            if (this.level != 'high')
-                if (!this.hasPendingLockTask())
-                    this.scheduleLockTask();
+            if (level != 'high')
+                if (!this.hasPendingLock())
+                    this.scheduleDelayedLock();
         }
         catch (e) {
             logError(e, 'checkTask()');
@@ -283,13 +323,32 @@ class KeyringAutolockExtension extends Extension {
     }
 
 
+    set hide_locked(val)
+    {
+        this.#hide_locked = val;
+        if (this.#hide_locked)
+            this.#indicator.visible = this.level != 'high';
+        else
+            this.#indicator.visible = true;
+        this.scheduleIdleCheck();
+    }
+
+
+    get hide_locked()
+    {
+        return this.#hide_locked;
+    }
+
+
     set lock_delay(val)
     {
         this.#lock_delay = val;
-        if (this.hasPendingLockTask()) {
-            this.cancelLockTask();
-            this.scheduleLockTask();
-        }
+        // if a lock is scheduled, make sure it uses the new delay
+        if (this.hasPendingLock()) {
+            this.cancelDelayedLock();
+            this.scheduleDelayedLock();
+        } else
+            this.scheduleIdleCheck();
     }
 
 
@@ -300,40 +359,40 @@ class KeyringAutolockExtension extends Extension {
 
 
     // return true if there's already a locking task scheduled
-    hasPendingLockTask()
+    hasPendingLock()
     {
-        return this.#lock_source != 0;
+        return this.#delayed_lock_source != 0;
     }
 
 
-    scheduleLockTask()
+    scheduleDelayedLock()
     {
-        this.cancelLockTask();
-        this.#lock_source = GLib.timeout_add(GLib.PRIORITY_DEFAULT,
-                                             this.lock_delay * 1000,
-                                             this.lockTask.bind(this));
+        if (this.hasPendingLock())
+            return;
+
+        this.#delayed_lock_source =
+            GLib.timeout_add(GLib.PRIORITY_DEFAULT,
+                             this.lock_delay * 1000,
+                             this.lockTask.bind(this));
     }
 
 
-    cancelLockTask()
+    cancelDelayedLock()
     {
-        if (this.hasPendingLockTask()) {
-            GLib.Source.remove(this.#lock_source);
-            this.#lock_source = 0;
+        if (this.hasPendingLock()) {
+            GLib.Source.remove(this.#delayed_lock_source);
+            this.#delayed_lock_source = 0;
         }
     }
 
 
     async lockTask()
     {
-        this.cancelLockTask();
+        this.cancelDelayedLock();
         try {
             let [service, collections] = await this.getCollections();
-
-            let [n, locked] = await service.lock(collections, null);
-            // console.log(`Locked ${n} collections in the keyring.`);
-
-            await this.checkTask();
+            await service.lock(collections, null);
+            this.scheduleIdleCheck();
         }
         catch (e) {
             logError(e, 'lockTask()');
