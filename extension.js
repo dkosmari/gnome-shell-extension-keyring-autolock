@@ -117,7 +117,6 @@ class Extension {
     #check_interval_signal = 0;
     #hide_locked = false;
     #hide_locked_signal = 0;
-    #idle_check_source = 0;
     #indicator;
     #level = 'medium';
     #lock_delay = 60;
@@ -155,7 +154,7 @@ class Extension {
         this.#lock_delay_signal =
             this.#settings.connect('changed::lock-delay',
                                    (settings, key) => {
-                                       this.lock_interval = settings.get_uint(key);
+                                       this.lock_delay = settings.get_uint(key);
                                    });
 
 
@@ -168,7 +167,6 @@ class Extension {
     disable()
     {
         this.cancelPeriodicCheck();
-        this.cancelIdleCheck();
         this.cancelDelayedLock();
 
         if (this.#check_interval_signal) {
@@ -202,14 +200,18 @@ class Extension {
     set level(val)
     {
         this.#level = val;
+        if (this.hide_locked) {
+            if (this.#level == 'high')
+                this.#indicator?.hide();
+            else
+                this.#indicator?.show();
+        }
+
         const level_to_icon = {
             'high'   : 'security-high-symbolic',
             'medium' : 'security-medium-symbolic',
             'low'    : 'security-low-symbolic'
         };
-        if (this.hide_locked)
-            this.#indicator.visible = this.#level != 'high';
-
         this.#indicator?.updateIcon(level_to_icon[this.#level]);
     }
 
@@ -256,44 +258,14 @@ class Extension {
         // set it up again, so it uses the new value
         this.cancelPeriodicCheck();
         this.schedulePeriodicCheck();
-        // do a check right now, for good measure
-        this.scheduleIdleCheck();
+
+        this.checkTask(); // no waiting
     }
 
 
     get check_interval()
     {
         return this.#check_interval;
-    }
-
-
-    // Do a one-off check task as an idle callback.
-    scheduleIdleCheck()
-    {
-        if (this.#idle_check_source) // already queued a check, don't do it twice
-            return;
-
-        this.#idle_check_source =
-            GLib.idle_add(GLib.PRIORITY_DEFAULT,
-                          async () => {
-                              this.cancelIdleCheck();
-                              try {
-                                  await this.checkTask();
-                              }
-                              catch (e) {
-                                  logError(e);
-                              }
-                              return GLib.SOURCE_REMOVE;
-                          });
-    }
-
-
-    cancelIdleCheck()
-    {
-        if (this.#idle_check_source) {
-            GLib.Source.remove(this.#idle_check_source);
-            this.#idle_check_source = 0;
-        }
     }
 
 
@@ -341,7 +313,8 @@ class Extension {
             this.#indicator.visible = this.level != 'high';
         else
             this.#indicator.visible = true;
-        this.scheduleIdleCheck();
+
+        this.checkTask(); // no waiting
     }
 
 
@@ -359,7 +332,7 @@ class Extension {
             this.cancelDelayedLock();
             this.scheduleDelayedLock();
         } else
-            this.scheduleIdleCheck();
+            this.checkTask(); // no waiting
     }
 
 
@@ -399,15 +372,15 @@ class Extension {
 
     async lockTask()
     {
-        this.cancelDelayedLock();
         try {
             let [service, collections] = await this.getCollections();
             await service.lock(collections, null);
-            this.scheduleIdleCheck();
         }
         catch (e) {
             logError(e, 'lockTask()');
         }
+        this.cancelDelayedLock();
+        this.checkTask(); // no waiting
         return GLib.SOURCE_REMOVE;
     }
 

@@ -43,7 +43,7 @@ install: $(ZIP_FILE)
 	gnome-extensions install --force $(ZIP_FILE)
 
 
-$(ZIP_FILE): $(SOURCES) $(EXTRA_SOURCES) $(EXTRA_DIST) $(GSCHEMA_XML_FILE) $(PO_FILES)
+$(ZIP_FILE): metadata.json $(SOURCES) $(EXTRA_SOURCES) $(EXTRA_DIST) $(GSCHEMA_XML_FILE) $(PO_FILES)
 	gnome-extensions pack \
 		--force \
 		--podir=po \
