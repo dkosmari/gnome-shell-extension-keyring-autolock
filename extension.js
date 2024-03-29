@@ -309,10 +309,13 @@ class Extension {
     set hide_locked(val)
     {
         this.#hide_locked = val;
-        if (this.#hide_locked)
-            this.#indicator.visible = this.level != 'high';
-        else
-            this.#indicator.visible = true;
+        if (this.#hide_locked) {
+            if (this.level == 'high')
+                this.#indicator?.hide();
+            else
+                this.#indicator?.show();
+        } else
+            this.#indicator?.show();
 
         this.checkTask(); // no waiting
     }
