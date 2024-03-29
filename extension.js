@@ -127,12 +127,6 @@ class KeyringAutolockExtension extends Extension {
     #settings;
 
 
-    constructor(meta)
-    {
-        this.metadata = meta;
-    }
-
-
     enable()
     {
         this.#indicator = new Indicator(this);
