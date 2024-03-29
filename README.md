@@ -16,6 +16,12 @@ website](https://extensions.gnome.org/extension/6846/keyring-autolock/).
 Installing from sources
 -----------------------
 
+Prerequisites:
+
+  - [make](https://www.gnu.org/software/make/)
+
+  - [jq](https://stedolan.github.io/jq/)
+
 Run:
 
     make install
