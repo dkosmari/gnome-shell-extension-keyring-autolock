@@ -1,9 +1,20 @@
 Keyring Autolock
 ================
 
-This is a GNOME Shell extension to automatically lock the keyring. It can also show the
-current keyring status (fully unlocked, partially locked, fully locked) in the indicator
-icon. There's also a menu option to immediately lock the keyring.
+This is a GNOME Shell extension to automatically lock the Keyring.
+
+ - The status icon indicates if it's completely unlocked, partially locked, or fully
+   locked. Optionally, the icon can be hidden wen fully locked.
+
+ - It can completely lock the Keyring with a single click.
+ 
+ - All collections are shown, with their locked state; clicking on a collection locks it.
+ 
+ - Check interval and lock delay can be configured.
+ 
+ - Collections can be marked to be ignored by the extension.
+
+![Screenshot](screenshot.png)
 
 
 Installing from GNOME Extensions website

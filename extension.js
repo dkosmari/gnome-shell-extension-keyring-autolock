@@ -32,6 +32,7 @@ class Indicator extends PanelMenu.Button {
     }
 
 
+    #collection_items = [];
     #ext;
     #icon;
     #lock_item;
@@ -52,15 +53,15 @@ class Indicator extends PanelMenu.Button {
         this.add_child(this.#icon);
 
         this.menu.addAction(_('Settings...'),
-                            this.#ext.openPreferences.bind(this.#ext),
+                            () => this.#ext.openPreferences(),
                             'preferences-other-symbolic');
 
-        this.#status_item = new PopupMenu.PopupSeparatorMenuItem();
-        this.menu.addMenuItem(this.#status_item);
-
         this.#lock_item = this.menu.addAction(_('Lock the keyring now'),
-                                              this.#ext.lockTask.bind(this.#ext),
+                                              () => this.#ext.lockAll(),
                                               'channel-secure-symbolic');
+
+        this.#status_item = new PopupMenu.PopupSeparatorMenuItem('-');
+        this.menu.addMenuItem(this.#status_item);
 
         Main.panel.addToStatusArea(this.#ext.metadata.uuid, this);
     }
@@ -95,16 +96,36 @@ class Indicator extends PanelMenu.Button {
     }
 
 
-    async _onOpenStateChanged(menu, is_open)
+    _onOpenStateChanged(menu, is_open)
     {
         super._onOpenStateChanged(menu, is_open);
+        if (is_open)
+            this.updateLockedStatus();
+    }
+
+
+    async updateLockedStatus()
+    {
         try {
-            const [locked, total, level] = await this.#ext.refreshLevel();
+            const [locked, total, level, collections] = await this.#ext.refreshLevel();
             this.#status_item.label.text = _('Locked:') + ` ${locked} / ${total}`;
             this.#lock_item.visible = level != 'high';
+
+            this.#collection_items.forEach(item => item.destroy());
+            this.#collection_items = [];
+            collections.forEach(col => {
+                const item = this.menu.addAction(col.label,
+                                                 () => this.#ext.lockCollection(col),
+                                                 col.locked
+                                                 ? 'changes-prevent-symbolic'
+                                                 : 'changes-allow-symbolic');
+                if (col.locked)
+                    item.sensitive = false;
+                this.#collection_items.push(item);
+            });
         }
         catch (e) {
-            logError(e, 'onOpenStateChanged()');
+            logError(e, 'updatedLockedStatus()');
         }
     }
 
@@ -243,11 +264,11 @@ class Extension {
             else
                 this.level = 'medium';
 
-            return [locked, collections.length, this.level];
+            return [locked, collections.length, this.level, collections];
         }
         catch (e) {
             logError(e, 'getLevel()');
-            return [0, 0, 'medium'];
+            return [0, 0, 'medium', []];
         }
     }
 
@@ -292,7 +313,7 @@ class Extension {
     async checkTask()
     {
         try {
-            let [locked, total, level] = await this.refreshLevel();
+            let [locked, total, level, collections] = await this.refreshLevel();
 
             // always schedule a lock if we're below 'high' and there isn't a lock scheduled
             if (level != 'high')
@@ -360,7 +381,7 @@ class Extension {
         this.#delayed_lock_source =
             GLib.timeout_add(GLib.PRIORITY_DEFAULT,
                              this.lock_delay * 1000,
-                             this.lockTask.bind(this));
+                             this.lockAll.bind(this));
     }
 
 
@@ -373,14 +394,14 @@ class Extension {
     }
 
 
-    async lockTask()
+    async lockAll()
     {
         try {
             let [service, collections] = await this.getCollections();
             await service.lock(collections, null);
         }
         catch (e) {
-            logError(e, 'lockTask()');
+            logError(e, 'lockAll()');
         }
         this.cancelDelayedLock();
         this.checkTask(); // no waiting
@@ -388,18 +409,34 @@ class Extension {
     }
 
 
-    // return all collections we want to lock, except 'session'.
+    async lockCollection(col)
+    {
+        try {
+            await col.service.lock([col], null);
+        }
+        catch (e) {
+            logError(e, 'lockCollection()');
+        }
+        this.checkTask(); // no waiting
+    }
+
+
+    // return all non-ignored collections, except 'session'.
     async getCollections()
     {
-        let service = await Secret.Service.get(Secret.ServiceFlags.LOAD_COLLECTIONS, null);
+        const service = await Secret.Service.get(Secret.ServiceFlags.LOAD_COLLECTIONS, null);
         let collections = service.get_collections();
 
         const session = await Secret.Collection.for_alias(service,
                                                           'session',
                                                           Secret.CollectionFlags.NONE,
                                                           null);
-        const session_path = session.get_object_path();
-        collections = collections.filter(c => c.get_object_path() != session_path);
+        const session_path = session?.get_object_path();
+
+        let ignored = this.#settings.get_value('ignored-collections').get_objv();
+        ignored.push(session_path);
+
+        collections = collections.filter(c => !ignored.includes(c.get_object_path()));
 
         return [service, collections];
     }

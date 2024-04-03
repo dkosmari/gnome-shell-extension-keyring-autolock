@@ -7,9 +7,9 @@ msgstr ""
 "Project-Id-Version: Keyring Autolock\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "keyring-autolock\n"
-"POT-Creation-Date: 2024-03-27 17:12-0300\n"
-"PO-Revision-Date: 2024-03-27 17:16-0300\n"
-"Last-Translator: \n"
+"POT-Creation-Date: 2024-04-03 01:52-0300\n"
+"PO-Revision-Date: 2024-04-03 02:17-0300\n"
+"Last-Translator: Daniel K. O.\n"
 "Language-Team: \n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
@@ -18,53 +18,59 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.2.2\n"
 
-#: extension.js:54
+#: extension.js:55
 msgid "Settings..."
 msgstr "Ajustes..."
 
-#: extension.js:61
+#: extension.js:59
 msgid "Lock the keyring now"
 msgstr "Bloquea el llavero ahora"
 
-#: extension.js:103
+#: extension.js:111
 msgid "Locked:"
 msgstr "Bloqueado:"
 
-#: prefs.js:37
+#: prefs.js:101 prefs.js:109
+msgid "Ignored collections"
+msgstr "Colecciones ignoradas"
+
+#: prefs.js:110
+msgid "Ignored collections will never be locked by this extensions."
+msgstr "Estas extensiones nunca bloquearán las colecciones ignoradas."
+
+#: prefs.js:201
 msgid "General settings"
 msgstr "Configuración general"
 
-#: prefs.js:44
+#: prefs.js:209
 msgid "Indicator"
 msgstr "Indicador"
 
-#: prefs.js:50
+#: prefs.js:215
 msgid "Hide indicator if locked"
 msgstr "Ocultar indicador si está bloqueado"
 
-#: prefs.js:51
+#: prefs.js:216
 msgid "Keep the indicator icon hidden while the keyring is locked."
-msgstr ""
-"Mantenga oculto el icono indicador mientras el llavero esté bloqueado."
+msgstr "Mantenga oculto el icono indicador mientras el llavero esté bloqueado."
 
-#: prefs.js:65
+#: prefs.js:230
 msgid "Timers"
 msgstr "Temporizadores"
 
-#: prefs.js:71
+#: prefs.js:236
 msgid "Check interval (seconds)"
 msgstr "Intervalo de comprobación (segundos)"
 
-#: prefs.js:72
+#: prefs.js:237
 msgid "The keyring is checked periodically, to detect if it is unlocked."
 msgstr ""
 "El llavero se revisa periódicamente, para detectar si está desbloqueado."
 
-#: prefs.js:93
+#: prefs.js:258
 msgid "Lock delay (seconds)"
 msgstr "Retardo de bloqueo (segundos)"
 
-#: prefs.js:94
+#: prefs.js:259
 msgid "How long the keyring is allowed to stay unlocked."
 msgstr "Cuánto tiempo se permite que el llavero permanezca desbloqueado."
-

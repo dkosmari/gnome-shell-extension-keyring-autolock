@@ -43,10 +43,13 @@ install: $(ZIP_FILE)
 	gnome-extensions install --force $(ZIP_FILE)
 
 
-$(ZIP_FILE): metadata.json $(SOURCES) $(EXTRA_SOURCES) $(EXTRA_DIST) $(GSCHEMA_XML_FILE) $(PO_FILES)
-	gnome-extensions pack \
-		--force \
-		--podir=po \
+$(ZIP_FILE):	metadata.json \
+		$(SOURCES) \
+		$(EXTRA_SOURCES) \
+		$(EXTRA_DIST) \
+		$(GSCHEMA_XML_FILE) \
+		$(PO_FILES)
+	gnome-extensions pack --force \
 		$(patsubst %,--extra-source=%,$(EXTRA_DIST))
 
 
@@ -55,7 +58,8 @@ $(POT_FILE): $(SOURCES) $(EXTRA_SOURCES)
 		--copyright-holder="Daniel K. O." \
 		--package-name="$(PACKAGE)" \
 		--msgid-bugs-address="$(URL)" \
-		--output=$@ $^
+		--output=$@ \
+		$^
 
 
 update-po: $(PO_FILES)

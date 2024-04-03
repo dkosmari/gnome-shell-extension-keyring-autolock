@@ -7,8 +7,10 @@
 const {
     Adw,
     Gio,
+    GLib,
     GObject,
-    Gtk
+    Gtk,
+    Secret
 } = imports.gi;
 
 const ExtensionUtils = imports.misc.extensionUtils;
@@ -18,7 +20,169 @@ const Me = ExtensionUtils.getCurrentExtension();
 const _ = ExtensionUtils.gettext;
 
 
-class KeyringAutolockPreferencesPage extends Adw.PreferencesPage {
+Gio._promisify(Secret.Collection, 'for_alias', 'for_alias_finish');
+Gio._promisify(Secret.Service, 'get', 'get_finish');
+
+
+class CollectionRow extends Adw.ActionRow {
+
+    static {
+        GObject.registerClass(this);
+    }
+
+
+    #switch;
+    #path;
+
+
+    constructor(collection, active, aliases = [])
+    {
+        super({
+            title: collection.label,
+            title_lines: 1,
+            title_selectable: true,
+            subtitle: collection.get_object_path(),
+            subtitle_lines: 1,
+            subtitle_selectable: true,
+        });
+
+        this.#path = collection.get_object_path();
+
+        if (aliases)
+            this.title += aliases.map(x => `<sup>[${x}]</sup>`).join(' ');
+
+        this.#switch = new Gtk.Switch({
+            valign: Gtk.Align.CENTER,
+            action_name: 'kal.collection.update-ignored',
+            active: active
+        });
+        this.add_suffix(this.#switch);
+    }
+
+
+    set active(val)
+    {
+        this.#switch.active = val;
+    }
+
+
+    get active()
+    {
+        return this.#switch.active;
+    }
+
+
+    get path()
+    {
+        return this.#path;
+    }
+
+};
+
+
+class IgnoredPage extends Adw.PreferencesPage {
+
+    static {
+        GObject.registerClass(this);
+
+        this.install_action('kal.collection.update-ignored', null,
+                            obj => obj.updateIgnored());
+    }
+
+
+    #col_group;
+    #settings;
+    #rows = [];
+
+
+    constructor(settings)
+    {
+        super({
+            title: _('Ignored collections'),
+            icon_name: 'view-list-symbolic'
+        });
+
+        this.#settings = settings;
+
+        this.#col_group =
+            new Adw.PreferencesGroup({
+                title: _('Ignored collections'),
+                description: _('Ignored collections will never be locked by this extensions.')
+            });
+
+        this.add(this.#col_group);
+
+        this.refreshCollections();
+    }
+
+
+    async refreshCollections()
+    {
+        try {
+            this.#rows.forEach(r => this.remove(r));
+            this.#rows = [];
+
+            const service =
+                  await Secret.Service.get(Secret.ServiceFlags.LOAD_COLLECTIONS, null);
+            const collections = service.get_collections();
+
+            const known_aliases = [ 'default', 'login', 'session' ];
+            const path_to_aliases = {};
+            for (let i = 0; i < known_aliases.length; ++i) {
+                const alias = known_aliases[i];
+                try {
+                    const col = await Secret.Collection.for_alias(service,
+                                                                  alias,
+                                                                  Secret.CollectionFlags.NONE,
+                                                                  null);
+                    if (col) {
+                        const path = col.get_object_path();
+                        if (path_to_aliases[path])
+                            path_to_aliases[path].push(alias);
+                        else
+                            path_to_aliases[path] = [alias];
+                    }
+                }
+                catch (e) {
+                    logError(e);
+                }
+            }
+
+            const ignored_collections =
+                  this.#settings.get_value('ignored-collections').get_objv();
+
+            for (let i = 0; i < collections.length; ++i) {
+                const col = collections[i];
+                const path = col.get_object_path();
+
+                // never allow locking the 'session' collection, GNOME Keyring doesn't like it
+                const is_session = path_to_aliases[path]?.includes('session');
+                if (is_session)
+                    continue;
+
+                const ignored = ignored_collections.includes(path);
+                const row = new CollectionRow(col, ignored, path_to_aliases[path]);
+                this.#col_group.add(row);
+                this.#rows.push(row);
+            }
+        }
+        catch (e) {
+            logError(e);
+        }
+    }
+
+
+    updateIgnored()
+    {
+        const ignored = this.#rows.filter(r => r.active).map(r => r.path);
+        this.#settings.set_value('ignored-collections',
+                                 GLib.Variant.new_objv(ignored));
+    }
+
+};
+
+
+class GeneralPage extends Adw.PreferencesPage {
 
     static {
         GObject.registerClass(this);
@@ -31,13 +195,14 @@ class KeyringAutolockPreferencesPage extends Adw.PreferencesPage {
     #settings;
 
 
-    constructor(ext)
+    constructor(settings)
     {
         super({
-            title: _('General settings')
+            title: _('General settings'),
+            icon_name: 'preferences-other-symbolic'
         });
 
-        this.#settings = ext.getSettings();
+        this.#settings = settings;
 
 
         let indicator_group = new Adw.PreferencesGroup({
@@ -117,7 +282,9 @@ class KeyringAutolockPreferencesPage extends Adw.PreferencesPage {
 
 function fillPreferencesWindow(window)
 {
-    window.add(new KeyringAutolockPreferencesPage(ExtensionUtils));
+    const settings = ExtensionUtils.getSettings();
+    window.add(new GeneralPage(settings));
+    window.add(new IgnoredPage(settings));
 }
 
 
