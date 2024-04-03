@@ -132,7 +132,7 @@ class Indicator extends PanelMenu.Button {
 };
 
 
-class Extension {
+class KeyringAutolockExtension {
 
     #check_interval = 30;
     #check_interval_signal = 0;
@@ -449,5 +449,5 @@ class Extension {
 function init(meta)
 {
     ExtensionUtils.initTranslations();
-    return new Extension(meta);
+    return new KeyringAutolockExtension(meta);
 }
