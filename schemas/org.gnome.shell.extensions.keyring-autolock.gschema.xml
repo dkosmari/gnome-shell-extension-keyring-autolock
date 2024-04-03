@@ -23,5 +23,9 @@
       <default>false</default>
       <summary>Hide the indicator icon while the keyring is locked.</summary>
     </key>
+    <key name="ignored-collections" type="ao">
+      <default>[]</default>
+      <summary>D-Bus paths for all collections that should never be locked.</summary>
+    </key>
   </schema>
 </schemalist>

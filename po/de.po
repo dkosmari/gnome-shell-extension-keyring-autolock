@@ -7,9 +7,9 @@ msgstr ""
 "Project-Id-Version: Keyring Autolock\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "keyring-autolock\n"
-"POT-Creation-Date: 2024-03-27 17:30-0300\n"
-"PO-Revision-Date: 2024-03-27 17:18-0300\n"
-"Last-Translator: \n"
+"POT-Creation-Date: 2024-04-03 02:46-0300\n"
+"PO-Revision-Date: 2024-04-03 02:16-0300\n"
+"Last-Translator: Daniel K. O.\n"
 "Language-Team: \n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
@@ -18,54 +18,63 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.2.2\n"
 
-#: extension.js:54
+#: extension.js:55
 msgid "Settings..."
 msgstr "Einstellungen..."
 
-#: extension.js:61
+#: extension.js:59
 msgid "Lock the keyring now"
 msgstr "Schließen Sie jetzt den Schlüsselbund ab"
 
-#: extension.js:103
+#: extension.js:111
 msgid "Locked:"
 msgstr "Gesperrt:"
 
-#: prefs.js:34
+#: prefs.js:98 prefs.js:106
+msgid "Ignored collections"
+msgstr "Ignorierte Sammlungen"
+
+#: prefs.js:107
+msgid "Ignored collections will never be locked by this extensions."
+msgstr ""
+"Ignorierte Sammlungen werden durch diese Erweiterungen niemals gesperrt."
+
+#: prefs.js:198
 msgid "General settings"
 msgstr "Allgemeine Einstellungen"
 
-#: prefs.js:41
+#: prefs.js:206
 msgid "Indicator"
 msgstr "Indikator"
 
-#: prefs.js:47
+#: prefs.js:212
 msgid "Hide indicator if locked"
 msgstr "Anzeige ausblenden, wenn gesperrt"
 
-#: prefs.js:48
+#: prefs.js:213
 msgid "Keep the indicator icon hidden while the keyring is locked."
 msgstr ""
 "Lassen Sie das Anzeigesymbol ausgeblendet, während der Schlüsselring "
 "gesperrt ist."
 
-#: prefs.js:62
+#: prefs.js:227
 msgid "Timers"
 msgstr "Timer"
 
-#: prefs.js:68
+#: prefs.js:233
 msgid "Check interval (seconds)"
 msgstr "Prüfintervall (Sekunden)"
 
-#: prefs.js:69
+#: prefs.js:234
 msgid "The keyring is checked periodically, to detect if it is unlocked."
 msgstr ""
 "Der Schlüsselbund wird regelmäßig überprüft, um festzustellen, ob er "
 "entsperrt ist."
 
-#: prefs.js:90
+#: prefs.js:255
 msgid "Lock delay (seconds)"
 msgstr "Sperrverzögerung (Sekunden)"
 
-#: prefs.js:91
+#: prefs.js:256
 msgid "How long the keyring is allowed to stay unlocked."
 msgstr "Wie lange der Schlüsselbund unverschlossen bleiben darf."
