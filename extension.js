@@ -438,6 +438,8 @@ class Extension {
 
         collections = collections.filter(c => !ignored.includes(c.get_object_path()));
 
+        collections.sort((a, b) => a.label.localeCompare(b.label));
+
         return [service, collections];
     }
 
