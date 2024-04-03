@@ -136,13 +136,15 @@ class KeyringAutolockExtension {
 
     #check_interval = 30;
     #check_interval_signal = 0;
+    #delayed_lock_source = 0;
     #hide_locked = false;
     #hide_locked_signal = 0;
+    #ignored = [];
+    #ignored_signal = 0;
     #indicator;
     #level = 'medium';
     #lock_delay = 60;
     #lock_delay_signal = 0;
-    #delayed_lock_source = 0;
     #periodic_check_source = 0;
     #settings;
 
@@ -178,10 +180,18 @@ class KeyringAutolockExtension {
                                        this.lock_delay = settings.get_uint(key);
                                    });
 
+        this.#ignored_signal =
+            this.#settings.connect('changed::ignored-collections',
+                                   (settings, key) => {
+                                       this.#ignored = settings.get_value(key).get_objv();
+                                   });
+
 
         this.check_interval = this.#settings.get_uint('check-interval');
         this.hide_locked    = this.#settings.get_boolean('hide-locked');
         this.lock_delay     = this.#settings.get_uint('lock-delay');
+        this.#ignored       = this.#settings.get_value('ignored-collections').get_objv();
+
     }
 
 
@@ -203,6 +213,11 @@ class KeyringAutolockExtension {
         if (this.#lock_delay_signal) {
             this.#settings?.disconnect(this.#lock_delay_signal);
             this.#lock_delay_signal = 0;
+        }
+
+        if (this.#ignored_signal) {
+            this.#settings?.disconnect(this.#ignored_signal);
+            this.#ignored_signal = 0;
         }
 
         this.#settings = null;
@@ -433,7 +448,7 @@ class KeyringAutolockExtension {
                                                           null);
         const session_path = session?.get_object_path();
 
-        let ignored = this.#settings.get_value('ignored-collections').get_objv();
+        let ignored = this.#ignored.slice(); // make a copy
         ignored.push(session_path);
 
         collections = collections.filter(c => !ignored.includes(c.get_object_path()));
