@@ -178,14 +178,14 @@ class KeyringAutolockExtension extends Extension {
         this.#ignored_signal =
             this.#settings.connect('changed::ignored-collections',
                                    (settings, key) => {
-                                       this.#ignored = settings.get_value(key).get_objv();
+                                       this.ignored = settings.get_value(key).get_objv();
                                    });
 
 
         this.check_interval = this.#settings.get_uint('check-interval');
         this.hide_locked    = this.#settings.get_boolean('hide-locked');
         this.lock_delay     = this.#settings.get_uint('lock-delay');
-        this.#ignored       = this.#settings.get_value('ignored-collections').get_objv();
+        this.ignored        = this.#settings.get_value('ignored-collections').get_objv();
 
     }
 
@@ -425,6 +425,19 @@ class KeyringAutolockExtension extends Extension {
     }
 
 
+    set ignored(val)
+    {
+        this.#ignored = val;
+        this.checkTask(); // no waiting
+    }
+
+
+    get ignored()
+    {
+        return this.#ignored;
+    }
+
+
     // return all non-ignored collections, except 'session'.
     async getCollections()
     {
@@ -437,7 +450,7 @@ class KeyringAutolockExtension extends Extension {
                                                           null);
         const session_path = session?.get_object_path();
 
-        let ignored = this.#ignored.slice(); // make a copy
+        let ignored = this.ignored.slice(); // make a copy
         ignored.push(session_path);
 
         collections = collections.filter(c => !ignored.includes(c.get_object_path()));
