@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Keyring Autolock\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "keyring-autolock\n"
-"POT-Creation-Date: 2024-04-05 12:55-0300\n"
+"POT-Creation-Date: 2024-04-06 09:27-0300\n"
 "PO-Revision-Date: 2024-04-03 02:18-0300\n"
 "Last-Translator: Daniel K. O.\n"
 "Language-Team: \n"
@@ -30,48 +30,48 @@ msgstr "Chiudi subito il portachiavi"
 msgid "Locked:"
 msgstr "Bloccato:"
 
-#: prefs.js:114 prefs.js:122
+#: prefs.js:113 prefs.js:121
 msgid "Ignored collections"
 msgstr "Collezioni ignorate"
 
-#: prefs.js:123
+#: prefs.js:122
 msgid "Ignored collections will never be locked by this extensions."
 msgstr "Le raccolte ignorate non verranno mai bloccate da queste estensioni."
 
-#: prefs.js:214
+#: prefs.js:213
 msgid "General settings"
 msgstr "Impostazioni generali"
 
-#: prefs.js:222
+#: prefs.js:221
 msgid "Indicator"
 msgstr "Indicatore"
 
-#: prefs.js:228
+#: prefs.js:227
 msgid "Hide indicator if locked"
 msgstr "Nascondi indicatore se bloccato"
 
-#: prefs.js:229
+#: prefs.js:228
 msgid "Keep the indicator icon hidden while the keyring is locked."
 msgstr ""
 "Mantieni nascosta l'icona dell'indicatore mentre il portachiavi è bloccato."
 
-#: prefs.js:243
+#: prefs.js:242
 msgid "Timers"
 msgstr "Temporizzatori"
 
-#: prefs.js:249
+#: prefs.js:248
 msgid "Check interval (seconds)"
 msgstr "Intervallo di controllo (secondi)"
 
-#: prefs.js:250
+#: prefs.js:249
 msgid "The keyring is checked periodically, to detect if it is unlocked."
 msgstr ""
 "Il portachiavi viene controllato periodicamente, per rilevare se è sbloccato."
 
-#: prefs.js:271
+#: prefs.js:270
 msgid "Lock delay (seconds)"
 msgstr "Ritardo blocco (secondi)"
 
-#: prefs.js:272
+#: prefs.js:271
 msgid "How long the keyring is allowed to stay unlocked."
 msgstr "Per quanto tempo il portachiavi può rimanere sbloccato."

@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Keyring Autolock\n"
 "Report-Msgid-Bugs-To: https://github.com/dkosmari/gnome-shell-extension-"
 "keyring-autolock\n"
-"POT-Creation-Date: 2024-04-05 12:55-0300\n"
+"POT-Creation-Date: 2024-04-06 09:27-0300\n"
 "PO-Revision-Date: 2024-04-03 02:16-0300\n"
 "Last-Translator: Daniel K. O.\n"
 "Language-Team: \n"
@@ -30,50 +30,50 @@ msgstr "Sleutelbos vergrendelen"
 msgid "Locked:"
 msgstr "Vergrendeld:"
 
-#: prefs.js:114 prefs.js:122
+#: prefs.js:113 prefs.js:121
 msgid "Ignored collections"
 msgstr "Genegeerde collecties"
 
-#: prefs.js:123
+#: prefs.js:122
 msgid "Ignored collections will never be locked by this extensions."
 msgstr "Genegeerde collecties worden nooit vergrendeld door deze extensies."
 
-#: prefs.js:214
+#: prefs.js:213
 msgid "General settings"
 msgstr "Algemene voorkeuren"
 
-#: prefs.js:222
+#: prefs.js:221
 msgid "Indicator"
 msgstr "Indicator"
 
-#: prefs.js:228
+#: prefs.js:227
 msgid "Hide indicator if locked"
 msgstr "Indicator verbergen indien vergrendeld"
 
-#: prefs.js:229
+#: prefs.js:228
 msgid "Keep the indicator icon hidden while the keyring is locked."
 msgstr ""
 "Houd het indicatorpictogram verborgen terwijl de sleutelhanger is "
 "vergrendeld."
 
-#: prefs.js:243
+#: prefs.js:242
 msgid "Timers"
 msgstr "Tijdklokken"
 
-#: prefs.js:249
+#: prefs.js:248
 msgid "Check interval (seconds)"
 msgstr "Controleren, elke"
 
-#: prefs.js:250
+#: prefs.js:249
 msgid "The keyring is checked periodically, to detect if it is unlocked."
 msgstr ""
 "De vergrendelstatus van de sleutelbos wordt geregeld (elke x-aantal "
 "seconden) gecontroleerd."
 
-#: prefs.js:271
+#: prefs.js:270
 msgid "Lock delay (seconds)"
 msgstr "Vergrendelen na"
 
-#: prefs.js:272
+#: prefs.js:271
 msgid "How long the keyring is allowed to stay unlocked."
 msgstr "Hoelang de sleutelbos ontgrendeld mag zijn (in seconden)."
