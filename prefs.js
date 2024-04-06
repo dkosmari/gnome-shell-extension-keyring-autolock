@@ -292,11 +292,31 @@ class GeneralPage extends Adw.PreferencesPage {
 };
 
 
+class ExtensionPreferences {
+
+    getSettings()
+    {
+        return ExtensionUtils.getSettings();
+    }
+
+};
+
+
+class KeyringAutolockPreferences extends ExtensionPreferences {
+
+    fillPreferencesWindow(window)
+    {
+        const settings = this.getSettings();
+        window.add(new GeneralPage(settings));
+        window.add(new IgnoredPage(settings));
+    }
+
+};
+
+
 function fillPreferencesWindow(window)
 {
-    const settings = ExtensionUtils.getSettings();
-    window.add(new GeneralPage(settings));
-    window.add(new IgnoredPage(settings));
+    return new KeyringAutolockPreferences().fillPreferencesWindow(window);
 }
 
 
