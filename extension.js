@@ -139,6 +139,18 @@ class Extension {
         this.metadata = meta;
     }
 
+
+    getSettings()
+    {
+        return ExtensionUtils.getSettings();
+    }
+
+
+    openPreferences()
+    {
+        ExtensionUtils.openPrefs();
+    }
+
 };
 
 
@@ -164,7 +176,7 @@ class KeyringAutolockExtension extends Extension {
         this.#indicator = new Indicator(this);
 
 
-        this.#settings = ExtensionUtils.getSettings();
+        this.#settings = this.getSettings();
 
         this.#check_interval_signal =
             this.#settings.connect('changed::check-interval',
@@ -228,12 +240,6 @@ class KeyringAutolockExtension extends Extension {
 
         this.#indicator?.destroy();
         this.#indicator = null;
-    }
-
-
-    openPreferences()
-    {
-        ExtensionUtils.openPrefs();
     }
 
 
