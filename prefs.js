@@ -21,6 +21,17 @@ Gio._promisify(Secret.Collection, 'for_alias', 'for_alias_finish');
 Gio._promisify(Secret.Service, 'get', 'get_finish');
 
 
+function adwCheckVersion(req_major, req_minor)
+{
+    const major = Adw.get_major_version();
+    if (major < req_major)
+        return false;
+    if (major > req_major)
+        return true;
+    return Adw.get_minor_version() >= req_minor;
+}
+
+
 class CollectionRow extends Adw.ActionRow {
 
     static {
@@ -40,8 +51,9 @@ class CollectionRow extends Adw.ActionRow {
             title_selectable: true,
             subtitle: collection.get_object_path(),
             subtitle_lines: 1,
-            subtitle_selectable: true,
         });
+        if (adwCheckVersion(1, 3))
+            this.subtitle_selectable = true;
 
         this.#path = collection.get_object_path();
 
